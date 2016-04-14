@@ -1,0 +1,37 @@
+
+- builder:
+    name: copy-update-source
+    builders:
+      - shell: |
+            mv /opt/git/libvirt $WORKSPACE
+            cd libvirt
+            git clean -f -x
+            git fetch -f --recurse-submodules=yes origin {branch}
+            git checkout FETCH_HEAD
+
+- job-template:
+    name: smoke-{name}-{branch}
+    node: trusty-label || dib-trusty-label
+    builders:
+      - copy-update-source:
+          branch: '{branch}'
+      - shell: |
+            cd libvirt
+            ./autogen.sh --system
+            make
+            sudo make install
+            libvirtd --version
+            sudo libvirtd -d
+            virsh list --all
+    publishers:
+      - email:
+          recepients: 'eantyshev@virtuozzo.com'
+        
+
+- project:
+    name: libvirt
+    branch:
+      - master
+      - v1.3.1-maint
+    jobs:
+      - smoke-{name}-{branch}

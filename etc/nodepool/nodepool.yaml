@@ -1,0 +1,64 @@
+script-dir: /etc/nodepool-scripts
+elements-dir: /etc/nodepool-elements
+images-dir: /opt/nodepool_dib
+
+cron:
+  check: '*/15 * * * *'
+  cleanup: '*/1 * * * *'
+  image-update: '14 2 * * *'
+
+zmq-publishers:
+  - tcp://localhost:8888
+
+gearman-servers:
+  - host: localhost
+
+labels:
+  - name: trusty-label
+    image: trusty1
+    min-ready: -1
+    providers:
+      - name: openstack001-test
+  - name: dib-trusty-label
+    image: dib-trusty
+    min-ready: 1
+    providers:
+      - name: openstack001-test
+
+providers:
+  - name: openstack001-test
+    username: 'admin'
+    password: '5fcf6292e9a240e0'
+    auth-url: 'http://10.94.2.99:5000/v2.0/'
+    project-name: 'admin'
+    max-servers: 2
+    images:
+      - name: trusty1
+        base-image: trusty
+        min-ram: 2048
+        username: jenkins
+        private-key: /opt/nodepool/jenkins_key
+        setup: setup.sh
+      - name: dib-trusty
+        diskimage: ubuntu-trusty
+        min-ram: 2048
+        username: jenkins
+        private-key: /opt/nodepool/jenkins_key
+
+targets:
+  - name: jenkins1
+
+diskimages:
+  - name: ubuntu-trusty
+    elements:
+      - ubuntu-minimal
+      - vm
+      - simple-init
+      - growroot
+      - my-slave
+    release: trusty
+    env-vars:
+      TMPDIR: /opt/dib_tmp
+      DIB_IMAGE_CACHE: /opt/dib_cache
+      DIB_APT_LOCAL_CACHE: '0'
+      DIB_DISABLE_APT_CLEANUP: '1'

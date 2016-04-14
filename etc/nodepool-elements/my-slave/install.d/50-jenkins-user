@@ -1,0 +1,21 @@
+#!/bin/bash
+
+if [ ${DIB_DEBUG_TRACE:-0} -gt 0 ]; then
+    set -x
+fi
+set -eu
+set -o pipefail
+
+useradd -m jenkins
+
+cat > /etc/sudoers.d/jenkins-sudo << EOF
+jenkins ALL=(ALL) NOPASSWD:ALL
+EOF
+chmod 0440 /etc/sudoers.d/jenkins-sudo
+
+if [ -f /tmp/in_target.d/jenkins_key.pub ]; then
+    mkdir -p /home/jenkins/.ssh
+    cp /tmp/in_target.d/jenkins_key.pub /home/jenkins/.ssh/authorized_keys
+fi
+
+chown -R jenkins:jenkins /home/jenkins

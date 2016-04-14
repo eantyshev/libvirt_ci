@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ ${DIB_DEBUG_TRACE:-0} -gt 0 ]; then
+    set -x
+fi
+set -eu
+set -o pipefail
+
+mkdir /opt/git
+cd /opt/git
+git clone git://libvirt.org/libvirt.git
+cd libvirt
+git submodule update --init --recursive
+
+sudo chown -R jenkins:jenkins /opt/git
+exit 0
