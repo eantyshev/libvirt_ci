@@ -6,15 +6,13 @@
             mv /opt/git/libvirt $WORKSPACE
             cd libvirt
             git clean -f -x
-            git fetch -f --recurse-submodules=yes origin {branch}
+            git fetch -f --recurse-submodules=yes \
+                                       origin {branch}
             git checkout FETCH_HEAD
 
-- job-template:
-    name: smoke-{name}-{branch}
-    node: trusty-label || dib-trusty-label
+- builder:
+    name: test-libvirt
     builders:
-      - copy-update-source:
-          branch: '{branch}'
       - shell: |
             cd libvirt
             ./autogen.sh --system
@@ -23,6 +21,14 @@
             libvirtd --version
             sudo libvirtd -d
             virsh list --all
+
+- job-template:
+    name: smoke-libvirt-{branch}
+    node: trusty-label || dib-trusty-label
+    builders:
+      - copy-update-source:
+          branch: '{branch}'
+      - test-libvirt
     publishers:
       - email:
           recepients: 'eantyshev@virtuozzo.com'
@@ -34,4 +40,4 @@
       - master
       - v1.3.1-maint
     jobs:
-      - smoke-{name}-{branch}
+      - smoke-libvirt-{branch}
