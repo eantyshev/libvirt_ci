@@ -28,8 +28,8 @@ labels:
 providers:
   - name: openstack001-test
     username: 'admin'
-    password: '5fcf6292e9a240e0'
-    auth-url: 'http://10.94.2.99:5000/v2.0/'
+    password: '5fcf6292e9a240ee'
+    auth-url: 'http://10.1.1.1:5000/v2.0/'
     project-name: 'admin'
     max-servers: 2
     images:
